@@ -14,24 +14,18 @@ const lenis = new Lenis({
     touchMultiplier: 2,
 });
 
-function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-}
-
-requestAnimationFrame(raf);
-
 // Register GSAP Plugins
 gsap.registerPlugin(ScrollTrigger);
 
-// Update ScrollTrigger on Lenis scroll
-lenis.on('scroll', ScrollTrigger.update);
-
+// Sync Lenis with GSAP ticker (single source of truth)
 gsap.ticker.add((time) => {
     lenis.raf(time * 1000);
 });
 
 gsap.ticker.lagSmoothing(0);
+
+// Update ScrollTrigger on Lenis scroll
+lenis.on('scroll', ScrollTrigger.update);
 
 /* ===========================
    Particle Canvas Animation
@@ -297,11 +291,12 @@ gsap.to('.dna-helix', {
 const statCards = document.querySelectorAll('.stat-card');
 
 statCards.forEach((card, index) => {
+    // Changed: removed reverse, animations only play once
     gsap.to(card, {
         scrollTrigger: {
             trigger: card,
             start: 'top 85%',
-            toggleActions: 'play none none reverse',
+            toggleActions: 'play none none none',
         },
         opacity: 1,
         y: 0,
@@ -348,11 +343,12 @@ statCards.forEach((card, index) => {
 const blurElements = document.querySelectorAll('.blur-reveal');
 
 blurElements.forEach((el) => {
+    // Changed: removed reverse, animations only play once
     gsap.to(el, {
         scrollTrigger: {
             trigger: el,
             start: 'top 85%',
-            toggleActions: 'play none none reverse',
+            toggleActions: 'play none none none',
         },
         opacity: 1,
         filter: 'blur(0px)',
@@ -368,11 +364,12 @@ blurElements.forEach((el) => {
 const platformCards = document.querySelectorAll('.platform-card');
 
 platformCards.forEach((card, index) => {
+    // Changed: removed reverse, animations only play once
     gsap.to(card, {
         scrollTrigger: {
             trigger: card,
             start: 'top 85%',
-            toggleActions: 'play none none reverse',
+            toggleActions: 'play none none none',
         },
         opacity: 1,
         y: 0,
@@ -421,11 +418,12 @@ ScrollTrigger.create({
 const researchCards = document.querySelectorAll('.research-card');
 
 researchCards.forEach((card, index) => {
+    // Changed: removed reverse, animations only play once
     gsap.to(card, {
         scrollTrigger: {
             trigger: card,
             start: 'top 85%',
-            toggleActions: 'play none none reverse',
+            toggleActions: 'play none none none',
         },
         opacity: 1,
         y: 0,
@@ -588,29 +586,6 @@ gsap.to('.molecule-3d', {
     },
     y: -50,
     rotation: 180,
-});
-
-/* ===========================
-   Section Reveal Animation
-   =========================== */
-const sections = document.querySelectorAll('section');
-
-sections.forEach((section) => {
-    gsap.fromTo(
-        section,
-        {
-            opacity: 0.8,
-        },
-        {
-            scrollTrigger: {
-                trigger: section,
-                start: 'top 80%',
-                end: 'top 20%',
-                scrub: 1,
-            },
-            opacity: 1,
-        }
-    );
 });
 
 /* ===========================
