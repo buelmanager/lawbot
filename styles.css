@@ -490,6 +490,17 @@ a {
 .hero-chat .chat-messages {
     min-height: 320px;
     max-height: 400px;
+    transition: min-height 0.4s ease, max-height 0.4s ease;
+}
+
+/* Expanded chat when conversation starts */
+.hero-chat .chat-container.chat-expanded {
+    max-width: 100%;
+}
+
+.hero-chat .chat-container.chat-expanded .chat-messages {
+    min-height: 450px;
+    max-height: 550px;
 }
 
 .hero-chat .chat-welcome {

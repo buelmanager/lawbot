@@ -394,6 +394,12 @@ function sendMessage() {
     const message = chatInput.value.trim();
     if (!message) return;
 
+    // Expand chat container when conversation starts
+    const chatContainer = document.querySelector('.hero-chat .chat-container');
+    if (chatContainer && !chatContainer.classList.contains('chat-expanded')) {
+        chatContainer.classList.add('chat-expanded');
+    }
+
     // Hide welcome message
     const welcomeEl = chatMessages.querySelector('.chat-welcome');
     if (welcomeEl) {
