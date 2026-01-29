@@ -108,14 +108,23 @@
     <!-- 카카오 애드핏 광고 -->
     <section class="adfit-section">
         <div class="container">
-            <div class="adfit-container">
-                <ins class="kakao_ad_area" style="display:none;"
-                    data-ad-unit="DAN-XXXXXXXXXXXXXXXXXX"
-                    data-ad-width="320"
-                    data-ad-height="100"></ins>
+            <div class="adfit-container" id="adfit-blog">
+                <ins class="kakao_ad_area" style="display:none;width:100%;"
+                    data-ad-unit="DAN-lJv0UFXMhOFUlRhD"
+                    data-ad-width="300"
+                    data-ad-height="250"
+                    data-ad-onfail="adfitBlogFail"></ins>
             </div>
         </div>
     </section>
+
+    <script>
+        // 광고 로드 실패 시 컨테이너 숨김
+        function adfitBlogFail(e) {
+            const container = document.getElementById('adfit-blog');
+            if (container) container.style.display = 'none';
+        }
+    </script>
 
     <!-- CTA Section -->
     <section class="blog-cta">

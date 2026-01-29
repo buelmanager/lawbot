@@ -208,27 +208,23 @@
     margin: 0;
 }
 
-/* 카카오 애드핏 광고 */
-.adfit-container {
+/* 카카오 애드핏 광고 - chat 페이지 */
+.chat-wrapper .adfit-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: var(--space-md);
-    padding: var(--space-sm);
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 12px;
-    min-height: 100px;
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 16px;
+    min-height: 250px;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.adfit-container ins {
+.chat-wrapper .adfit-container ins {
     display: block !important;
-}
-
-/* 광고 로딩 전 placeholder */
-.adfit-container:empty::before {
-    content: "광고";
-    color: var(--color-text-muted);
-    font-size: 0.75rem;
 }
 
 /* PWA Install Banner */
