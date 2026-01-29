@@ -1,5 +1,6 @@
 /* ===========================
    법률AI - Main Script
+   법제처 공식 데이터 기반 AI 법률 정보 서비스
    GSAP + Lenis + Canvas Particles
    =========================== */
 
@@ -36,11 +37,11 @@ class ParticleNetwork {
         this.ctx = canvas.getContext('2d');
         this.particles = [];
         this.mouse = { x: null, y: null, radius: 150 };
-        this.particleCount = 60;
-        this.connectionDistance = 120;
+        this.particleCount = 50;
+        this.connectionDistance = 100;
         this.colors = {
-            particle: '#c9a227',
-            connection: 'rgba(201, 162, 39, 0.1)',
+            particle: '#3b82f6',
+            connection: 'rgba(59, 130, 246, 0.08)',
         };
 
         this.init();
@@ -100,7 +101,7 @@ class ParticleNetwork {
                 if (distance < this.connectionDistance) {
                     const opacity = 1 - distance / this.connectionDistance;
                     this.ctx.beginPath();
-                    this.ctx.strokeStyle = `rgba(201, 162, 39, ${opacity * 0.15})`;
+                    this.ctx.strokeStyle = `rgba(59, 130, 246, ${opacity * 0.12})`;
                     this.ctx.lineWidth = 0.5;
                     this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
                     this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
@@ -156,7 +157,7 @@ class Particle {
         this.network.ctx.beginPath();
         this.network.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         this.network.ctx.fillStyle = this.network.colors.particle;
-        this.network.ctx.globalAlpha = 0.4;
+        this.network.ctx.globalAlpha = 0.3;
         this.network.ctx.fill();
         this.network.ctx.globalAlpha = 1;
     }
@@ -216,7 +217,7 @@ heroTimeline
         '-=0.6'
     )
     .to(
-        '.hero-trust',
+        '.hero-values',
         {
             opacity: 1,
             y: 0,
@@ -243,9 +244,6 @@ heroTimeline
         '-=0.6'
     );
 
-// Set initial state for hero-chat
-gsap.set('.hero-chat', { opacity: 0, y: 30 });
-
 /* ===========================
    Blur Reveal Animation
    =========================== */
@@ -267,11 +265,11 @@ blurElements.forEach((el) => {
 });
 
 /* ===========================
-   Feature Cards Animation
+   Trust Cards Animation
    =========================== */
-const featureCards = document.querySelectorAll('.feature-card');
+const trustCards = document.querySelectorAll('.trust-card');
 
-featureCards.forEach((card, index) => {
+trustCards.forEach((card, index) => {
     gsap.to(card, {
         scrollTrigger: {
             trigger: card,
@@ -287,14 +285,15 @@ featureCards.forEach((card, index) => {
 });
 
 /* ===========================
-   Step Cards Animation
+   RAG Steps Animation
    =========================== */
-const stepCards = document.querySelectorAll('.step-card');
+const ragSteps = document.querySelectorAll('.rag-step');
+const ragArrows = document.querySelectorAll('.rag-arrow');
 
-stepCards.forEach((card, index) => {
-    gsap.to(card, {
+ragSteps.forEach((step, index) => {
+    gsap.to(step, {
         scrollTrigger: {
-            trigger: card,
+            trigger: step,
             start: 'top 85%',
             toggleActions: 'play none none none',
         },
@@ -306,19 +305,33 @@ stepCards.forEach((card, index) => {
     });
 });
 
-/* ===========================
-   Category Cards Animation
-   =========================== */
-const categoryCards = document.querySelectorAll('.category-card');
+ragArrows.forEach((arrow, index) => {
+    gsap.to(arrow, {
+        scrollTrigger: {
+            trigger: arrow,
+            start: 'top 85%',
+            toggleActions: 'play none none none',
+        },
+        opacity: 1,
+        duration: 0.6,
+        delay: 0.3 + index * 0.15,
+        ease: 'power3.out',
+    });
+});
 
-categoryCards.forEach((card, index) => {
+/* ===========================
+   Consultation Cards Animation
+   =========================== */
+const consultCards = document.querySelectorAll('.consult-card');
+
+consultCards.forEach((card, index) => {
     gsap.to(card, {
         scrollTrigger: {
             trigger: card,
             start: 'top 85%',
             toggleActions: 'play none none none',
         },
-        opacity: card.classList.contains('category-coming') ? 0.6 : 1,
+        opacity: 1,
         y: 0,
         duration: 0.8,
         delay: index * 0.1,
@@ -481,7 +494,7 @@ typingStyles.textContent = `
     .typing-dot {
         width: 8px;
         height: 8px;
-        background: var(--color-gold);
+        background: var(--color-primary, #3b82f6);
         border-radius: 50%;
         opacity: 0.3;
     }
@@ -501,12 +514,15 @@ function getDemoResponse(question) {
         return `
             <p><strong>퇴직금 계산 방법</strong></p>
             <p>퇴직금은 다음 공식으로 계산됩니다:</p>
-            <p style="background: rgba(201,162,39,0.1); padding: 12px; border-radius: 8px; margin: 12px 0;">
+            <p style="background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 8px; margin: 12px 0; font-family: monospace;">
                 <strong>퇴직금 = 1일 평균임금 × 30일 × (재직일수 ÷ 365)</strong>
             </p>
-            <p><strong>관련 법령:</strong> 근로자퇴직급여 보장법 제8조</p>
-            <p style="font-size: 0.85em; color: rgba(255,255,255,0.5); margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-                ⚠️ 위 정보는 일반적인 법률 정보이며, 구체적인 사안은 변호사와 상담하시기 바랍니다.
+            <p style="background: rgba(245, 158, 11, 0.1); padding: 12px; border-left: 3px solid #f59e0b; border-radius: 0 8px 8px 0; margin-top: 16px;">
+                <span style="color: #f59e0b; font-size: 0.75rem;">📖 근거 법령</span><br>
+                <strong>근로자퇴직급여 보장법 제8조</strong> (퇴직금제도의 설정)
+            </p>
+            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+                ⚠️ 위 정보는 일반적인 법률 정보이며, 정확성을 보장하지 않습니다. 구체적인 사안은 변호사와 상담하세요.
             </p>
         `;
     }
@@ -520,9 +536,12 @@ function getDemoResponse(question) {
                 <li style="margin-bottom: 8px;">해고일로부터 <strong>3개월 이내</strong>에 노동위원회에 구제신청을 할 수 있습니다.</li>
                 <li style="margin-bottom: 8px;">사업장 관할 <strong>지방노동위원회</strong>에 부당해고 구제신청서를 제출하세요.</li>
             </ol>
-            <p><strong>관련 법령:</strong> 근로기준법 제23조, 제28조</p>
-            <p style="font-size: 0.85em; color: rgba(255,255,255,0.5); margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-                ⚠️ 위 정보는 일반적인 법률 정보이며, 구체적인 사안은 변호사와 상담하시기 바랍니다.
+            <p style="background: rgba(245, 158, 11, 0.1); padding: 12px; border-left: 3px solid #f59e0b; border-radius: 0 8px 8px 0; margin-top: 16px;">
+                <span style="color: #f59e0b; font-size: 0.75rem;">📖 근거 법령</span><br>
+                <strong>근로기준법 제23조</strong> (해고 등의 제한), <strong>제28조</strong> (부당해고등의 구제신청)
+            </p>
+            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+                ⚠️ 위 정보는 일반적인 법률 정보이며, 정확성을 보장하지 않습니다. 구체적인 사안은 변호사와 상담하세요.
             </p>
         `;
     }
@@ -536,9 +555,12 @@ function getDemoResponse(question) {
                 <li style="margin-bottom: 8px;"><strong>1년 이상 근무:</strong> 15일</li>
                 <li style="margin-bottom: 8px;"><strong>3년 이상 근무:</strong> 2년마다 1일씩 추가 (최대 25일)</li>
             </ul>
-            <p><strong>관련 법령:</strong> 근로기준법 제60조</p>
-            <p style="font-size: 0.85em; color: rgba(255,255,255,0.5); margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-                ⚠️ 위 정보는 일반적인 법률 정보이며, 구체적인 사안은 변호사와 상담하시기 바랍니다.
+            <p style="background: rgba(245, 158, 11, 0.1); padding: 12px; border-left: 3px solid #f59e0b; border-radius: 0 8px 8px 0; margin-top: 16px;">
+                <span style="color: #f59e0b; font-size: 0.75rem;">📖 근거 법령</span><br>
+                <strong>근로기준법 제60조</strong> (연차 유급휴가)
+            </p>
+            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+                ⚠️ 위 정보는 일반적인 법률 정보이며, 정확성을 보장하지 않습니다. 구체적인 사안은 변호사와 상담하세요.
             </p>
         `;
     }
@@ -546,15 +568,15 @@ function getDemoResponse(question) {
     // Default response
     return `
         <p>질문해 주셔서 감사합니다.</p>
-        <p>현재 데모 버전에서는 제한된 응답만 제공됩니다. 실제 서비스에서는 법령과 판례를 기반으로 더 상세한 답변을 받으실 수 있습니다.</p>
+        <p>현재 데모 버전에서는 제한된 응답만 제공됩니다. 실제 서비스에서는 법제처 국가법령정보 API와 대법원 판례를 기반으로 <strong>조문 번호와 판례를 명시한 근거 있는 답변</strong>을 받으실 수 있습니다.</p>
         <p><strong>지원되는 예시 질문:</strong></p>
         <ul style="margin: 12px 0; padding-left: 20px;">
             <li>퇴직금은 어떻게 계산하나요?</li>
             <li>부당해고를 당했을 때 어떻게 해야 하나요?</li>
             <li>연차휴가는 며칠이 주어지나요?</li>
         </ul>
-        <p style="font-size: 0.85em; color: rgba(255,255,255,0.5); margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-            ⚠️ 위 정보는 일반적인 법률 정보이며, 구체적인 사안은 변호사와 상담하시기 바랍니다.
+        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+            ⚠️ 위 정보는 일반적인 법률 정보이며, 정확성을 보장하지 않습니다. 구체적인 사안은 변호사와 상담하세요.
         </p>
     `;
 }
@@ -584,11 +606,11 @@ window.addEventListener('load', () => {
    =========================== */
 console.log(
     '%c⚖️ 법률AI',
-    'font-size: 24px; font-weight: bold; color: #c9a227;'
+    'font-size: 24px; font-weight: bold; color: #3b82f6;'
 );
 console.log(
-    '%cAI가 제공하는 무료 법률 정보 서비스',
-    'font-size: 14px; color: #d4af37;'
+    '%c법제처 공식 데이터 기반 AI 법률 정보 서비스',
+    'font-size: 14px; color: #60a5fa;'
 );
 console.log(
     '%c본 서비스는 법률 정보 제공 목적이며, 법률 자문이 아닙니다.',
