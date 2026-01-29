@@ -1,7 +1,11 @@
 /* ===========================
-   법률AI - Main Script
-   GSAP + Lenis + Canvas Particles
+   LawBot - Main Script
+   4대 법률 분야 특화 AI 법률 정보 서비스
+   GSAP + Lenis + Canvas Particles + Lucide Icons
    =========================== */
+
+// Initialize Lucide Icons
+lucide.createIcons();
 
 // Initialize Lenis Smooth Scroll
 const lenis = new Lenis({
@@ -12,6 +16,12 @@ const lenis = new Lenis({
     smooth: true,
     smoothTouch: false,
     touchMultiplier: 2,
+    prevent: (node) => {
+        // 채팅 메시지 영역에서는 Lenis 스크롤 비활성화
+        return node.closest('.chat-messages') !== null ||
+               node.closest('.chat-container') !== null ||
+               node.classList.contains('chat-messages');
+    }
 });
 
 // Register GSAP Plugins
@@ -27,6 +37,26 @@ gsap.ticker.lagSmoothing(0);
 // Update ScrollTrigger on Lenis scroll
 lenis.on('scroll', ScrollTrigger.update);
 
+// 채팅 영역에서 휠 이벤트가 페이지 스크롤로 전파되지 않도록 처리
+document.addEventListener('DOMContentLoaded', () => {
+    const chatMessagesEl = document.getElementById('chat-messages');
+    if (chatMessagesEl) {
+        chatMessagesEl.addEventListener('wheel', (e) => {
+            const { scrollTop, scrollHeight, clientHeight } = chatMessagesEl;
+            const isScrolledToTop = scrollTop === 0;
+            const isScrolledToBottom = scrollTop + clientHeight >= scrollHeight - 1;
+
+            // 스크롤이 위나 아래 끝에 도달했을 때만 이벤트 전파 방지
+            if ((e.deltaY < 0 && isScrolledToTop) || (e.deltaY > 0 && isScrolledToBottom)) {
+                // 끝에 도달해도 페이지 스크롤 방지
+                e.preventDefault();
+            }
+            // 채팅 영역 내에서는 항상 이벤트 전파 중단
+            e.stopPropagation();
+        }, { passive: false });
+    }
+});
+
 /* ===========================
    Particle Canvas Animation
    =========================== */
@@ -39,8 +69,8 @@ class ParticleNetwork {
         this.particleCount = 60;
         this.connectionDistance = 120;
         this.colors = {
-            particle: '#c9a227',
-            connection: 'rgba(201, 162, 39, 0.1)',
+            particle: '#3b82f6',
+            connection: 'rgba(59, 130, 246, 0.08)',
         };
 
         this.init();
@@ -100,7 +130,7 @@ class ParticleNetwork {
                 if (distance < this.connectionDistance) {
                     const opacity = 1 - distance / this.connectionDistance;
                     this.ctx.beginPath();
-                    this.ctx.strokeStyle = `rgba(201, 162, 39, ${opacity * 0.15})`;
+                    this.ctx.strokeStyle = `rgba(59, 130, 246, ${opacity * 0.15})`;
                     this.ctx.lineWidth = 0.5;
                     this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
                     this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
@@ -197,6 +227,15 @@ heroTimeline
         delay: 0.3,
     })
     .to(
+        '.hero-areas',
+        {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+        },
+        '-=0.5'
+    )
+    .to(
         '.title-line',
         {
             opacity: 1,
@@ -267,6 +306,26 @@ blurElements.forEach((el) => {
 });
 
 /* ===========================
+   Trust Cards Animation
+   =========================== */
+const trustCards = document.querySelectorAll('.trust-card');
+
+trustCards.forEach((card, index) => {
+    gsap.to(card, {
+        scrollTrigger: {
+            trigger: card,
+            start: 'top 85%',
+            toggleActions: 'play none none none',
+        },
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        delay: index * 0.1,
+        ease: 'power3.out',
+    });
+});
+
+/* ===========================
    Feature Cards Animation
    =========================== */
 const featureCards = document.querySelectorAll('.feature-card');
@@ -287,14 +346,15 @@ featureCards.forEach((card, index) => {
 });
 
 /* ===========================
-   Step Cards Animation
+   RAG Steps Animation
    =========================== */
-const stepCards = document.querySelectorAll('.step-card');
+const ragSteps = document.querySelectorAll('.rag-step');
+const ragArrows = document.querySelectorAll('.rag-arrow');
 
-stepCards.forEach((card, index) => {
-    gsap.to(card, {
+ragSteps.forEach((step, index) => {
+    gsap.to(step, {
         scrollTrigger: {
-            trigger: card,
+            trigger: step,
             start: 'top 85%',
             toggleActions: 'play none none none',
         },
@@ -306,22 +366,36 @@ stepCards.forEach((card, index) => {
     });
 });
 
-/* ===========================
-   Category Cards Animation
-   =========================== */
-const categoryCards = document.querySelectorAll('.category-card');
+ragArrows.forEach((arrow, index) => {
+    gsap.to(arrow, {
+        scrollTrigger: {
+            trigger: arrow,
+            start: 'top 85%',
+            toggleActions: 'play none none none',
+        },
+        opacity: 0.5,
+        duration: 0.8,
+        delay: index * 0.15 + 0.2,
+        ease: 'power3.out',
+    });
+});
 
-categoryCards.forEach((card, index) => {
+/* ===========================
+   Category Area Cards Animation
+   =========================== */
+const categoryAreas = document.querySelectorAll('.category-area');
+
+categoryAreas.forEach((card, index) => {
     gsap.to(card, {
         scrollTrigger: {
             trigger: card,
             start: 'top 85%',
             toggleActions: 'play none none none',
         },
-        opacity: card.classList.contains('category-coming') ? 0.6 : 1,
+        opacity: 1,
         y: 0,
         duration: 0.8,
-        delay: index * 0.1,
+        delay: index * 0.15,
         ease: 'power3.out',
     });
 });
@@ -345,10 +419,171 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
 /* ===========================
    Chat Functionality
    =========================== */
+const API_BASE_URL = 'https://wonchulhee-korean-law-chatbot.hf.space';
+let conversationId = null;
+let selectedCategory = null;
+
 const chatInput = document.getElementById('chat-input');
 const chatSubmit = document.getElementById('chat-submit');
 const chatMessages = document.getElementById('chat-messages');
-const exampleBtns = document.querySelectorAll('.example-btn');
+const categorySelect = document.getElementById('category-select');
+const welcomeExamples = document.getElementById('welcome-examples');
+const exampleBtnsContainer = document.getElementById('example-btns');
+
+// 분야별 예시 질문
+const CATEGORY_EXAMPLES = {
+    labor: [
+        { label: '퇴직금 계산', question: '퇴직금은 어떻게 계산하나요?' },
+        { label: '부당해고 대응', question: '부당해고를 당했을 때 어떻게 해야 하나요?' },
+        { label: '임금체불', question: '임금을 받지 못했을 때 어떻게 해야 하나요?' },
+    ],
+    housing: [
+        { label: '보증금 반환', question: '전세보증금을 돌려받지 못하면 어떻게 해야 하나요?' },
+        { label: '계약갱신', question: '임대차 계약갱신청구권이 무엇인가요?' },
+        { label: '대항력', question: '임차인의 대항력은 어떻게 갖추나요?' },
+    ],
+    consumer: [
+        { label: '온라인 환불', question: '온라인 쇼핑 환불 규정이 어떻게 되나요?' },
+        { label: '청약철회', question: '청약철회는 어떤 경우에 가능한가요?' },
+        { label: '제품 하자', question: '제품에 하자가 있을 때 어떻게 보상받나요?' },
+    ],
+    traffic: [
+        { label: '과실비율', question: '교통사고 과실비율은 어떻게 정해지나요?' },
+        { label: '손해배상', question: '교통사고 손해배상은 어떻게 청구하나요?' },
+        { label: '보험금 청구', question: '자동차 보험금 청구 절차가 어떻게 되나요?' },
+    ],
+};
+
+// 분야별 안내 메시지
+const CATEGORY_INTRO = {
+    labor: {
+        name: '노동법',
+        icon: 'briefcase',
+        color: '#3b82f6',
+        message: '노동법 분야 상담을 시작합니다. 근로기준법, 최저임금법, 퇴직급여보장법 등을 기반으로 답변드립니다.',
+    },
+    housing: {
+        name: '임대차법',
+        icon: 'home',
+        color: '#10b981',
+        message: '임대차법 분야 상담을 시작합니다. 주택임대차보호법, 상가건물임대차보호법을 기반으로 답변드립니다.',
+    },
+    consumer: {
+        name: '소비자보호법',
+        icon: 'shopping-cart',
+        color: '#f59e0b',
+        message: '소비자보호법 분야 상담을 시작합니다. 소비자기본법, 전자상거래법을 기반으로 답변드립니다.',
+    },
+    traffic: {
+        name: '교통사고',
+        icon: 'car',
+        color: '#ef4444',
+        message: '교통사고·손해배상 분야 상담을 시작합니다. 자동차손해배상보장법, 도로교통법을 기반으로 답변드립니다.',
+    },
+};
+
+// 분야 선택 버튼 이벤트
+if (categorySelect) {
+    const categoryBtns = categorySelect.querySelectorAll('.category-btn');
+    categoryBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const category = btn.dataset.category;
+            selectCategory(category);
+        });
+    });
+}
+
+function selectCategory(category) {
+    // 채팅 전용 페이지로 이동
+    window.location.href = `chat.html?category=${category}`;
+}
+
+// 분야 변경 버튼
+const changeCategoryBtn = document.getElementById('change-category-btn');
+
+if (changeCategoryBtn) {
+    changeCategoryBtn.addEventListener('click', () => {
+        resetCategory();
+    });
+}
+
+function resetCategory() {
+    selectedCategory = null;
+    conversationId = null;
+
+    // 분야 변경 버튼 숨기기
+    if (changeCategoryBtn) {
+        changeCategoryBtn.style.display = 'none';
+    }
+
+    // 채팅 메시지 초기화
+    if (chatMessages) {
+        chatMessages.innerHTML = '';
+
+        // 웰컴 화면 다시 표시
+        const welcomeHtml = `
+            <div class="chat-welcome">
+                <div class="category-select" id="category-select">
+                    <button class="category-btn labor" data-category="labor">
+                        <i data-lucide="briefcase" class="icon-md"></i>
+                        <span class="category-name">노동법</span>
+                        <span class="category-desc">부당해고, 임금체불, 퇴직금</span>
+                    </button>
+                    <button class="category-btn housing" data-category="housing">
+                        <i data-lucide="home" class="icon-md"></i>
+                        <span class="category-name">임대차법</span>
+                        <span class="category-desc">보증금 반환, 계약갱신</span>
+                    </button>
+                    <button class="category-btn consumer" data-category="consumer">
+                        <i data-lucide="shopping-cart" class="icon-md"></i>
+                        <span class="category-name">소비자보호법</span>
+                        <span class="category-desc">환불, 청약철회, 제품 하자</span>
+                    </button>
+                    <button class="category-btn traffic" data-category="traffic">
+                        <i data-lucide="car" class="icon-md"></i>
+                        <span class="category-name">교통사고</span>
+                        <span class="category-desc">과실비율, 손해배상</span>
+                    </button>
+                </div>
+
+                <div class="welcome-examples" id="welcome-examples" style="display: none;">
+                    <span class="example-label">예시 질문:</span>
+                    <div class="example-btns" id="example-btns"></div>
+                </div>
+            </div>
+        `;
+        chatMessages.innerHTML = welcomeHtml;
+
+        // 아이콘 재초기화
+        lucide.createIcons();
+
+        // 카테고리 버튼 이벤트 다시 바인딩
+        const newCategorySelect = document.getElementById('category-select');
+        if (newCategorySelect) {
+            const newCategoryBtns = newCategorySelect.querySelectorAll('.category-btn');
+            newCategoryBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const category = btn.dataset.category;
+                    selectCategory(category);
+                });
+            });
+        }
+    }
+
+    // 채팅창 축소
+    const heroSection = document.querySelector('.hero.hero-with-chat');
+    if (heroSection) {
+        heroSection.classList.remove('chat-fullwidth');
+    }
+
+    const chatContainer = document.querySelector('.hero-chat .chat-container');
+    if (chatContainer) {
+        chatContainer.classList.remove('chat-expanded');
+    }
+}
+
+// 기존 예시 버튼 (폴백용)
+const exampleBtns = document.querySelectorAll('.example-btn:not(#example-btns .example-btn)');
 
 // Enable/disable submit button based on input
 if (chatInput && chatSubmit) {
@@ -390,9 +625,21 @@ exampleBtns.forEach((btn) => {
     });
 });
 
-function sendMessage() {
+async function sendMessage() {
     const message = chatInput.value.trim();
     if (!message) return;
+
+    // 분야가 선택되지 않은 경우 경고
+    if (!selectedCategory) {
+        alert('먼저 상담받고 싶은 법률 분야를 선택해 주세요.');
+        return;
+    }
+
+    // Expand chat to full width when conversation starts
+    const heroSection = document.querySelector('.hero.hero-with-chat');
+    if (heroSection && !heroSection.classList.contains('chat-fullwidth')) {
+        heroSection.classList.add('chat-fullwidth');
+    }
 
     // Expand chat container when conversation starts
     const chatContainer = document.querySelector('.hero-chat .chat-container');
@@ -417,14 +664,296 @@ function sendMessage() {
     // Show typing indicator
     const typingId = showTypingIndicator();
 
-    // Simulate AI response (in production, this would call the actual API)
-    setTimeout(() => {
+    // 분야 정보를 메시지에 추가 (선택 사항)
+    const categoryInfo = CATEGORY_INTRO[selectedCategory];
+    const contextMessage = `[${categoryInfo.name} 관련 질문] ${message}`;
+
+    try {
+        // 실제 API 호출
+        const response = await fetch(`${API_BASE_URL}/api/chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: contextMessage,
+                conversation_id: conversationId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API 오류: ${response.status}`);
+        }
+
+        const data = await response.json();
+        conversationId = data.conversation_id;
+
+        // AI 응답 표시
+        removeTypingIndicator(typingId);
+        addMessage(formatApiResponse(data), 'ai');
+    } catch (error) {
+        console.error('API 호출 실패:', error);
         removeTypingIndicator(typingId);
 
-        // Demo response
-        const demoResponse = getDemoResponse(message);
-        addMessage(demoResponse, 'ai');
-    }, 1500 + Math.random() * 1000);
+        // API 실패 시 폴백: 에러 메시지 또는 데모 응답
+        const errorMessage = `
+            <p>죄송합니다. 서버 연결에 문제가 발생했습니다.</p>
+            <p style="font-size: 0.85em; color: rgba(255,255,255,0.5); margin-top: 12px;">
+                잠시 후 다시 시도해 주세요. 서버가 시작 중일 수 있습니다.
+            </p>
+        `;
+        addMessage(errorMessage, 'ai');
+    }
+}
+
+// 법제처 법령 URL 매핑
+const LAW_URLS = {
+    "근로기준법": "https://www.law.go.kr/법령/근로기준법",
+    "근로자퇴직급여보장법": "https://www.law.go.kr/법령/근로자퇴직급여보장법",
+    "남녀고용평등과 일·가정 양립 지원에 관한 법률": "https://www.law.go.kr/법령/남녀고용평등과일·가정양립지원에관한법률",
+    "최저임금법": "https://www.law.go.kr/법령/최저임금법",
+    "산업재해보상보험법": "https://www.law.go.kr/법령/산업재해보상보험법",
+    "주택임대차보호법": "https://www.law.go.kr/법령/주택임대차보호법",
+    "상가건물임대차보호법": "https://www.law.go.kr/법령/상가건물임대차보호법",
+    "소비자기본법": "https://www.law.go.kr/법령/소비자기본법",
+    "전자상거래법": "https://www.law.go.kr/법령/전자상거래등에서의소비자보호에관한법률",
+    "자동차손해배상보장법": "https://www.law.go.kr/법령/자동차손해배상보장법",
+    "도로교통법": "https://www.law.go.kr/법령/도로교통법",
+};
+
+// 출처 유형 판별 및 URL 생성
+function getSourceUrl(source) {
+    const trimmed = source.trim();
+
+    // 판례 (예: "판례 2018다244877", "판례 2024노652")
+    if (trimmed.startsWith('판례 ')) {
+        const caseNumber = trimmed.replace('판례 ', '').trim();
+        // 대법원 종합법률정보 - 판례 검색 (판례·해석례등 탭)
+        return {
+            type: 'precedent',
+            url: `https://www.law.go.kr/LSW/precSc.do?menuId=7&subMenuId=67&tabMenuId=1&query=${encodeURIComponent(caseNumber)}`,
+            label: trimmed
+        };
+    }
+
+    // 법령해석례 (예: "법령해석례 21-0702", "법령해석례 07-0115")
+    if (trimmed.startsWith('법령해석례 ')) {
+        const expcNumber = trimmed.replace('법령해석례 ', '').trim();
+        // 법제처 - 법령해석례 검색 (법제처 해석례 탭)
+        return {
+            type: 'interpretation',
+            url: `https://www.law.go.kr/LSW/precSc.do?menuId=7&subMenuId=67&tabMenuId=2&query=${encodeURIComponent(expcNumber)}`,
+            label: trimmed
+        };
+    }
+
+    // 법령명인 경우
+    if (LAW_URLS[trimmed]) {
+        return {
+            type: 'law',
+            url: LAW_URLS[trimmed],
+            label: trimmed
+        };
+    }
+
+    // 부분 일치 검색
+    for (const [key, url] of Object.entries(LAW_URLS)) {
+        if (trimmed.includes(key) || key.includes(trimmed)) {
+            return {
+                type: 'law',
+                url: url,
+                label: key
+            };
+        }
+    }
+
+    // 기타 법령 (기본 검색)
+    if (trimmed.includes('법') || trimmed.includes('령')) {
+        return {
+            type: 'law',
+            url: `https://www.law.go.kr/법령/${encodeURIComponent(trimmed)}`,
+            label: trimmed
+        };
+    }
+
+    return null;
+}
+
+// 법령명에서 URL 가져오기 (기존 함수 유지 - 호환성)
+function getLawUrl(lawName) {
+    // 정확히 일치하는 경우
+    if (LAW_URLS[lawName]) {
+        return LAW_URLS[lawName];
+    }
+    // 부분 일치 검색
+    for (const [key, url] of Object.entries(LAW_URLS)) {
+        if (lawName.includes(key) || key.includes(lawName)) {
+            return url;
+        }
+    }
+    // 기본 검색 URL
+    return `https://www.law.go.kr/법령/${encodeURIComponent(lawName)}`;
+}
+
+// 출처에서 법령명 추출 (출처 자체가 법령명인 경우도 처리)
+function extractLawNames(sources) {
+    const lawNames = new Set();
+
+    // 알려진 법령명 목록
+    const knownLaws = [
+        "근로기준법",
+        "근로자퇴직급여보장법",
+        "남녀고용평등과 일·가정 양립 지원에 관한 법률",
+        "최저임금법",
+        "산업재해보상보험법",
+        "주택임대차보호법",
+        "상가건물임대차보호법",
+        "소비자기본법",
+        "전자상거래법",
+        "자동차손해배상보장법",
+        "도로교통법",
+    ];
+
+    sources.forEach(source => {
+        const trimmedSource = source.trim();
+
+        // 출처 자체가 법령명인 경우 (정확히 일치 또는 포함)
+        knownLaws.forEach(law => {
+            if (trimmedSource.includes(law) || law.includes(trimmedSource) || trimmedSource === law) {
+                lawNames.add(law);
+            }
+        });
+
+        // 부분 문자열 매칭 (예: "남녀고용평등" -> "남녀고용평등과 일·가정 양립 지원에 관한 법률")
+        if (trimmedSource.includes("남녀고용평등") || trimmedSource.includes("고용평등")) {
+            lawNames.add("남녀고용평등과 일·가정 양립 지원에 관한 법률");
+        }
+        if (trimmedSource.includes("전자상거래")) {
+            lawNames.add("전자상거래법");
+        }
+
+        // 출처가 알려진 법령에 없으면 그대로 추가 (기본 URL로 연결)
+        if (lawNames.size === 0 && trimmedSource.includes("법")) {
+            lawNames.add(trimmedSource);
+        }
+    });
+
+    // 출처를 그대로 법령명으로 사용 (매칭이 안된 경우)
+    if (lawNames.size === 0) {
+        sources.forEach(source => {
+            const trimmedSource = source.trim();
+            if (trimmedSource && trimmedSource.length > 0) {
+                lawNames.add(trimmedSource);
+            }
+        });
+    }
+
+    return Array.from(lawNames);
+}
+
+// API 응답을 HTML로 포맷팅
+function formatApiResponse(data) {
+    // 답변 텍스트를 HTML로 변환 (줄바꿈 처리)
+    let answerHtml = data.answer
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+
+    let html = `<p>${answerHtml}</p>`;
+
+    // 출처 정보가 있으면 표시
+    if (data.sources && data.sources.length > 0) {
+        html += '<div class="source-section" style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">';
+        html += '<p style="font-size: 0.85em; color: var(--color-primary-light); margin-bottom: 8px;"><strong>📚 참고 자료:</strong></p>';
+
+        // 출처별 리스트 (클릭 가능한 링크로)
+        html += '<ul style="font-size: 0.8em; color: rgba(255,255,255,0.6); padding-left: 16px; margin-bottom: 12px;">';
+        data.sources.forEach(source => {
+            const sourceInfo = getSourceUrl(source);
+            if (sourceInfo && sourceInfo.url) {
+                html += `<li style="margin-bottom: 4px;">
+                    <a href="${sourceInfo.url}" target="_blank" rel="noopener noreferrer"
+                       style="color: rgba(255,255,255,0.7); text-decoration: underline; text-decoration-style: dotted;">
+                        ${source}
+                    </a>
+                </li>`;
+            } else {
+                html += `<li style="margin-bottom: 4px;">${source}</li>`;
+            }
+        });
+        html += '</ul>';
+
+        // 출처별 원문 버튼
+        html += '<div class="source-links" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">';
+
+        data.sources.forEach(source => {
+            const sourceInfo = getSourceUrl(source);
+            if (sourceInfo) {
+                // 유형별 색상 설정
+                let btnColor, btnBg, btnBorder, icon;
+                if (sourceInfo.type === 'precedent') {
+                    btnColor = '#f59e0b'; // 골드 - 판례
+                    btnBg = 'rgba(245, 158, 11, 0.1)';
+                    btnBorder = 'rgba(245, 158, 11, 0.3)';
+                    icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>'; // 판례 아이콘
+                } else if (sourceInfo.type === 'interpretation') {
+                    btnColor = '#10b981'; // 에메랄드 - 해석례
+                    btnBg = 'rgba(16, 185, 129, 0.1)';
+                    btnBorder = 'rgba(16, 185, 129, 0.3)';
+                    icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>'; // 문서 아이콘
+                } else {
+                    btnColor = 'var(--color-primary-light)'; // 블루 - 법령
+                    btnBg = 'rgba(59, 130, 246, 0.1)';
+                    btnBorder = 'rgba(59, 130, 246, 0.3)';
+                    icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+                }
+
+                html += `<a href="${sourceInfo.url}" target="_blank" rel="noopener noreferrer"
+                    class="source-link-btn"
+                    style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px;
+                           font-size: 0.75em; color: ${btnColor}; background: ${btnBg};
+                           border: 1px solid ${btnBorder}; border-radius: 6px;
+                           text-decoration: none; transition: all 0.2s;">
+                    ${icon}
+                    ${sourceInfo.label} 원문
+                </a>`;
+            }
+        });
+
+        html += '</div>';
+        html += '</div>';
+    }
+
+    // 면책 고지
+    if (data.disclaimer) {
+        html += `<p style="font-size: 0.8em; color: rgba(255,255,255,0.4); margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+            ⚠️ ${data.disclaimer}
+        </p>`;
+    }
+
+    return html;
+}
+
+// 인덱싱된 법령 데이터 다운로드
+async function downloadLawData() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/download/laws.json`);
+        if (!response.ok) throw new Error('다운로드 실패');
+
+        const data = await response.json();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'lawbot_indexed_laws.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('다운로드 오류:', error);
+        alert('데이터 다운로드에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    }
 }
 
 function addMessage(content, type) {
@@ -481,7 +1010,7 @@ typingStyles.textContent = `
     .typing-dot {
         width: 8px;
         height: 8px;
-        background: var(--color-gold);
+        background: var(--color-primary);
         border-radius: 50%;
         opacity: 0.3;
     }
@@ -501,7 +1030,7 @@ function getDemoResponse(question) {
         return `
             <p><strong>퇴직금 계산 방법</strong></p>
             <p>퇴직금은 다음 공식으로 계산됩니다:</p>
-            <p style="background: rgba(201,162,39,0.1); padding: 12px; border-radius: 8px; margin: 12px 0;">
+            <p style="background: rgba(59,130,246,0.1); padding: 12px; border-radius: 8px; margin: 12px 0;">
                 <strong>퇴직금 = 1일 평균임금 × 30일 × (재직일수 ÷ 365)</strong>
             </p>
             <p><strong>관련 법령:</strong> 근로자퇴직급여 보장법 제8조</p>
@@ -527,16 +1056,32 @@ function getDemoResponse(question) {
         `;
     }
 
-    if (q.includes('연차') && q.includes('휴가')) {
+    if (q.includes('보증금') || q.includes('전세')) {
         return `
-            <p><strong>연차휴가 일수</strong></p>
-            <p>연차휴가는 근속기간에 따라 다음과 같이 부여됩니다:</p>
+            <p><strong>전세보증금 반환 방법</strong></p>
+            <p>전세보증금을 돌려받지 못할 경우 다음 절차를 진행할 수 있습니다:</p>
+            <ol style="margin: 12px 0; padding-left: 20px;">
+                <li style="margin-bottom: 8px;"><strong>내용증명 발송:</strong> 임대인에게 보증금 반환을 요청하는 내용증명을 보내세요.</li>
+                <li style="margin-bottom: 8px;"><strong>임차권등기명령:</strong> 법원에 임차권등기명령을 신청하여 대항력을 유지하세요.</li>
+                <li style="margin-bottom: 8px;"><strong>지급명령 신청:</strong> 법원에 지급명령을 신청하거나 민사소송을 제기할 수 있습니다.</li>
+            </ol>
+            <p><strong>관련 법령:</strong> 주택임대차보호법 제3조, 제3조의3</p>
+            <p style="font-size: 0.85em; color: rgba(255,255,255,0.5); margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+                ⚠️ 위 정보는 일반적인 법률 정보이며, 구체적인 사안은 변호사와 상담하시기 바랍니다.
+            </p>
+        `;
+    }
+
+    if (q.includes('환불') || q.includes('청약철회')) {
+        return `
+            <p><strong>온라인 쇼핑 환불 규정</strong></p>
+            <p>전자상거래법에 따른 청약철회 규정입니다:</p>
             <ul style="margin: 12px 0; padding-left: 20px;">
-                <li style="margin-bottom: 8px;"><strong>1년 미만 근무:</strong> 1개월 개근 시 1일씩 (최대 11일)</li>
-                <li style="margin-bottom: 8px;"><strong>1년 이상 근무:</strong> 15일</li>
-                <li style="margin-bottom: 8px;"><strong>3년 이상 근무:</strong> 2년마다 1일씩 추가 (최대 25일)</li>
+                <li style="margin-bottom: 8px;"><strong>청약철회 기간:</strong> 상품을 받은 날로부터 7일 이내</li>
+                <li style="margin-bottom: 8px;"><strong>환불 기한:</strong> 청약철회 후 3영업일 이내 환불</li>
+                <li style="margin-bottom: 8px;"><strong>배송비:</strong> 단순 변심은 소비자 부담, 하자는 판매자 부담</li>
             </ul>
-            <p><strong>관련 법령:</strong> 근로기준법 제60조</p>
+            <p><strong>관련 법령:</strong> 전자상거래법 제17조</p>
             <p style="font-size: 0.85em; color: rgba(255,255,255,0.5); margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
                 ⚠️ 위 정보는 일반적인 법률 정보이며, 구체적인 사안은 변호사와 상담하시기 바랍니다.
             </p>
@@ -551,7 +1096,8 @@ function getDemoResponse(question) {
         <ul style="margin: 12px 0; padding-left: 20px;">
             <li>퇴직금은 어떻게 계산하나요?</li>
             <li>부당해고를 당했을 때 어떻게 해야 하나요?</li>
-            <li>연차휴가는 며칠이 주어지나요?</li>
+            <li>전세보증금을 돌려받지 못하면 어떻게 해야 하나요?</li>
+            <li>온라인 쇼핑 환불 규정이 어떻게 되나요?</li>
         </ul>
         <p style="font-size: 0.85em; color: rgba(255,255,255,0.5); margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
             ⚠️ 위 정보는 일반적인 법률 정보이며, 구체적인 사안은 변호사와 상담하시기 바랍니다.
@@ -565,9 +1111,27 @@ function getDemoResponse(question) {
 const mobileToggle = document.querySelector('.nav-mobile-toggle');
 const navLinks = document.querySelector('.nav-links');
 
-if (mobileToggle) {
+if (mobileToggle && navLinks) {
     mobileToggle.addEventListener('click', () => {
+        const isOpening = !mobileToggle.classList.contains('active');
         mobileToggle.classList.toggle('active');
+        navLinks.classList.toggle('active');
+
+        // 메뉴 열릴 때 body 스크롤 방지
+        if (isOpening) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    });
+
+    // Close menu when clicking a link
+    navLinks.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            mobileToggle.classList.remove('active');
+            navLinks.classList.remove('active');
+            document.body.style.overflow = '';
+        });
     });
 }
 
@@ -577,18 +1141,73 @@ if (mobileToggle) {
 window.addEventListener('load', () => {
     document.body.classList.add('loaded');
     ScrollTrigger.refresh();
+
+    // Re-initialize Lucide icons after page load
+    lucide.createIcons();
+
+    // Initialize count-up animation for trust values
+    initCountUpAnimation();
 });
+
+/* ===========================
+   Count-Up Animation for Stats
+   =========================== */
+function initCountUpAnimation() {
+    const trustValues = document.querySelectorAll('.trust-value[data-count]');
+
+    trustValues.forEach(el => {
+        const target = parseInt(el.dataset.count, 10);
+        const suffix = el.dataset.suffix || '';
+
+        // ScrollTrigger로 화면에 보일 때 애니메이션 시작
+        ScrollTrigger.create({
+            trigger: el,
+            start: 'top 85%',
+            onEnter: () => {
+                animateValue(el, 0, target, 2000, suffix);
+            },
+            once: true
+        });
+    });
+}
+
+function animateValue(el, start, end, duration, suffix) {
+    el.classList.add('counting');
+    const startTime = performance.now();
+    const range = end - start;
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // easeOutExpo 이징
+        const easeProgress = 1 - Math.pow(2, -10 * progress);
+        const current = Math.floor(start + range * easeProgress);
+
+        // 숫자에 콤마 추가
+        el.textContent = current.toLocaleString() + suffix;
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            el.textContent = end.toLocaleString() + suffix;
+            el.classList.remove('counting');
+        }
+    }
+
+    requestAnimationFrame(update);
+}
 
 /* ===========================
    Console Message
    =========================== */
 console.log(
-    '%c⚖️ 법률AI',
-    'font-size: 24px; font-weight: bold; color: #c9a227;'
+    '%c⚖️ LawBot',
+    'font-size: 24px; font-weight: bold; color: #3b82f6;'
 );
 console.log(
-    '%cAI가 제공하는 무료 법률 정보 서비스',
-    'font-size: 14px; color: #d4af37;'
+    '%c4대 법률 분야 특화 AI 법률 정보 서비스',
+    'font-size: 14px; color: #60a5fa;'
 );
 console.log(
     '%c본 서비스는 법률 정보 제공 목적이며, 법률 자문이 아닙니다.',
