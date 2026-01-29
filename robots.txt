@@ -1,0 +1,11 @@
+# LawBot - robots.txt
+# https://lawbot-public.vercel.app
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://lawbot-public.vercel.app/sitemap.xml
+
+# Crawl-delay (optional)
+Crawl-delay: 1

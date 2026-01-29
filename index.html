@@ -4,7 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LawBot | 4대 법률 분야 특화 AI 법률 정보 서비스</title>
-    <meta name="description" content="노동법, 임대차법, 소비자보호법, 교통사고 4대 분야에 특화된 AI 법률 정보 서비스. 법제처 API와 대법원 판례 기반 근거 있는 답변.">
+    <meta name="description" content="노동법, 임대차법, 소비자보호법, 교통사고 4대 분야에 특화된 AI 법률 정보 서비스. 법제처 API와 대법원 판례 기반 근거 있는 답변을 무료로 제공합니다.">
+
+    <!-- SEO Meta Tags -->
+    <meta name="keywords" content="AI 법률 상담, 무료 법률 상담, 노동법, 퇴직금, 부당해고, 임대차, 전세보증금, 소비자보호, 환불, 교통사고, 손해배상, 법률 정보">
+    <meta name="author" content="LawBot">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://lawbot-public.vercel.app/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lawbot-public.vercel.app/">
+    <meta property="og:title" content="LawBot | 4대 법률 분야 특화 AI 법률 정보 서비스">
+    <meta property="og:description" content="노동법, 임대차법, 소비자보호법, 교통사고 4대 분야에 특화된 AI 법률 정보 서비스. 24시간 무료로 이용하세요.">
+    <meta property="og:image" content="https://lawbot-public.vercel.app/og-image.png">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:site_name" content="LawBot">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://lawbot-public.vercel.app/">
+    <meta name="twitter:title" content="LawBot | 4대 법률 분야 특화 AI 법률 정보 서비스">
+    <meta name="twitter:description" content="노동법, 임대차법, 소비자보호법, 교통사고 4대 분야에 특화된 AI 법률 정보 서비스. 24시간 무료로 이용하세요.">
+    <meta name="twitter:image" content="https://lawbot-public.vercel.app/og-image.png">
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#3b82f6">
@@ -755,6 +777,77 @@
                     .catch(err => console.log('Service Worker 등록 실패:', err));
             });
         }
+    </script>
+
+    <!-- JSON-LD 구조화 데이터 -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "LawBot",
+        "description": "노동법, 임대차법, 소비자보호법, 교통사고 4대 분야에 특화된 AI 법률 정보 서비스",
+        "url": "https://lawbot-public.vercel.app",
+        "applicationCategory": "LegalService",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "KRW"
+        },
+        "provider": {
+            "@type": "Organization",
+            "name": "LawBot",
+            "url": "https://lawbot-public.vercel.app"
+        },
+        "featureList": [
+            "노동법 상담 - 부당해고, 퇴직금, 임금체불",
+            "임대차법 상담 - 전세보증금, 계약갱신",
+            "소비자보호법 상담 - 환불, 청약철회",
+            "교통사고 상담 - 과실비율, 손해배상"
+        ],
+        "inLanguage": "ko"
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "LawBot의 답변을 신뢰할 수 있나요?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "LawBot은 대한민국 법령과 대법원 판례를 기반으로 답변합니다. 모든 답변에는 관련 법령 조문 번호가 함께 제공되어 직접 확인하실 수 있습니다. 다만, AI가 제공하는 정보는 일반적인 법률 정보이며, 개별 사안에 대한 법률 자문은 반드시 변호사와 상담하시기 바랍니다."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "개인정보는 어떻게 처리되나요?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "LawBot은 회원가입이 필요 없으며, 어떠한 개인정보도 수집하지 않습니다. 대화 내용은 서버에 저장되지 않으며, 브라우저 세션 종료 시 자동으로 삭제됩니다."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "어떤 법률 분야에 대해 상담받을 수 있나요?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "LawBot은 노동법(부당해고, 임금체불, 퇴직금), 임대차법(보증금 반환, 계약갱신), 소비자보호법(환불, 청약철회), 교통사고(과실비율, 손해배상) 4대 법률 분야에 특화되어 있습니다."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "무료인가요?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "네, 완전 무료입니다. 회원가입도 필요 없고 이용 횟수 제한도 없습니다. 24시간 언제든지 이용하실 수 있습니다."
+                }
+            }
+        ]
+    }
     </script>
 </body>
 </html>
